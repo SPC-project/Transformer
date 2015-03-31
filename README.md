@@ -3,9 +3,5 @@
 
 Проект собирается с помощью системы автоматизированной сборки [CMake](http://www.cmake.org/). Для получения бинарного файла вам необходимо: 
 
-<<<<<<< HEAD
 1. [Подготовить проект](http://www.cmake.org/Wiki/CMake_Generator_Specific_Information), сгенерировав файл управления сборкой (make, Visual Studio, Code::Blocks, прочее). <i>Совет:</i> не забудьте указать тип сборки (debug/release). Пример (Linux, терминал): `cmake . -DCMAKE_BUILD_TYPE=Release`
-=======
-1. Подготовить проект, сгенерировав файл управления сборкой (под make, Visual Studio, Code::Blocks, прочее). <i>Совет:</i> не забудьте указать тип сборки (debug/release). Пример (Linux, терминал): `cmake . -DCMAKE_BUILD_TYPE=Release`
->>>>>>> 7d644ac5c056027b7ab5b070e58a82bca7562e17
 2. Собрать проект, используя посредством используемой системы сборки
