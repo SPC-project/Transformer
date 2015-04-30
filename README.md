@@ -1,4 +1,4 @@
-#Трансформер
+#Трансформер [![Build Status](https://travis-ci.org/SPU-project/Transformer.svg?branch=master)](https://travis-ci.org/SPU-project/Transformer)
 ##Осуществляет переход от двумерного разбиения треугольниками к разбиению прямыми призмами
 
 Проект собирается с помощью системы автоматизированной сборки [CMake](http://www.cmake.org/). Для получения бинарного файла вам необходимо: 
