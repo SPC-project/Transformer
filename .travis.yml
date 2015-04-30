@@ -1,0 +1,4 @@
+language: cpp
+compiler: 
+  - gcc
+before_script: cmake
