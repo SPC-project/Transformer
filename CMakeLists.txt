@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8.12)  # Поверка версии cmake
+cmake_minimum_required(VERSION 2.8.7)  # Поверка версии cmake
 project(Transformer)
 
 # Назначим переменные для сборки проекта
 set(DEBUG_FLAGS "-g -Og -pipe -Wall -pedantic -std=gnu++11")
-set(RELEASE_FLAGS "-O2 -pipe -march=native")
+set(RELEASE_FLAGS "-O2 -pipe -march=native -std=gnu++11")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # Определяем параметры сборки
