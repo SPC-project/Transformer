@@ -1,6 +1,5 @@
 *.swp
-bin/transformer
-bin/transformer.exe
+bin/
 build/*
 !build/CMakeLists.txt
 CMakeFiles/
@@ -8,3 +7,6 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 journal.txt
+bars.txt
+data.transf
+grid.txt

@@ -3,15 +3,15 @@
 
 class transformer{
 public:
+	transformer(int LNumber, float LWidth, double ang);
+
 	bool LoadFile(const char *name);//получение данных из файла .pmd
 	bool Partition();//разбиение треугольника на четырехугольники
 	bool MakeLayer();//сделать в фигуре слои
 	bool SaveFile(const char* name);//сохраняем результаты в файл
 	void Sort_Koor(bool k);
 	void turn();
-	transformer(int LNumber, float LWidth, double ang);
 	void makeCentral(int k);
-
 private:
 
 	void CreateSpace();//создание рабочего пространства
@@ -29,8 +29,6 @@ private:
 	bool testOtherNode(int fo, int one, int sec);
 
 
-
-
 	int nodes;      // Начальное количество узлов
 	int elements;   // Количество треугольников
 	int n;          // Прогнозируемое количество узлов четырехугольников (при отображении по z-координате)
@@ -39,7 +37,7 @@ private:
 	int** inds;     // Матрица индексов: inds[k][l] -> индекс l-го узла k-го треугольника 
 	int** quad;     // Матрица узлов элементов (призматических четырех угольников - 8 узлов на элемент)
     int* quad_m; 
-	int** mid;      // Реестр просчитанных сторон треугольников; mid[i][0], mid[i][1] - индексы концов, mid[i][2] - середина 
+	int** edge_inds;// Реестр просчитанных сторон треугольников; mid[i][0], mid[i][1] - индексы концов, mid[i][2] - середина 
 
 	int CursorNodes; // Курсоры указывают на индекс строки в соответствующих матрицах, в которую будет производится запись
 	int CursorMid;

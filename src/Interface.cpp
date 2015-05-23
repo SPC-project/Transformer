@@ -5,7 +5,6 @@
 
 
 PrInterface::PrInterface(){
-
 	// Указываем кодировку этого файла для правильного отображения кириллицы
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8")); 
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
@@ -35,7 +34,7 @@ PrInterface::PrInterface(){
 	combox = new QComboBox(this);
 	combox->move(10, 160);
 	combox->hide();
-	//combox->addItem("", QVariant(QVariant::String));
+	//FIXME combox->addItem("", QVariant(QVariant::String));
 	combox->addItem(tr("180°"), QVariant(QVariant::String));
 	combox->addItem(tr("270°"), QVariant(QVariant::String));
 	combox->addItem(tr("360°"), QVariant(QVariant::String));
@@ -217,7 +216,10 @@ void PrInterface::transformate(){
 		}
 
 		State->setText(tr("Создание слоев..."));
-		Transform->MakeLayer();
+		if( !Transform->MakeLayer() ){
+            State->setText(tr("Проблемы с созданием слоев"));
+            return;
+        }
 
 		if (chboxes[1]->isChecked())
 			Transform->makeCentral(0);
