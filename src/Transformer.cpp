@@ -22,8 +22,9 @@ transformer::transformer(int LNumber, float LWidth, double ang){
 void transformer::CreateSpace(){
     // Разбиение создает на каждый элемент по 3 дополнительные точки (середины отрезков и центр)
     // После разбития происходит вытягивание и отражение (относительно [0;0]) в плоскости
+    // Слоев на один больше, так как нужен еще один, чтобы фигура состояла из призм (1 слой призм - это два плоских слоя)
     // Память выделяется избыточно, так как дополнительные точки соприкасающихся треугольников могут совпадать
-	n = (elements * 3 + nodes) * LayerNumber * QuartNumber;
+	n = (elements * 3 + nodes) * (LayerNumber+1) * QuartNumber;
 
 	inds = new int*[elements];
 	for (int i = 0; i < elements; i++)
@@ -198,7 +199,7 @@ bool transformer::SaveFile(const char* name){
 	ofstream bars("bars.txt");
 	ofstream dat(name);
     const int ELEM_COUNT = CursorQuad*LayerNumber;
-    const int EDGE_COUNT = CursorNodes*LayerNumber;
+    const int EDGE_COUNT = CursorNodes*(LayerNumber+1); // на один слой больше, так как призма на призме - это три, а не два слоя
     const int EDGE_IN_ELEM = 8; // Элемент: призматический восьмигранник (созданный параллельным переносом четырехугольника по z)
     const int EUCLID_SPACE = 3; // x, y, z
 
@@ -243,14 +244,14 @@ bool transformer::MakeLayer(){
         cout << "To few points in layer: " << CursorNodes << ". We planed: " << elements*3 + nodes << endl;
         return false;
     }            
-    if( CursorNodes-1 + CursorNodes*(LayerNumber-1) > n ) {
+    if( CursorNodes-1 + CursorNodes*(LayerNumber) > n ) {
         cout << "It is more points in figure, than we planed: " << (CursorNodes-1) + CursorNodes*LayerNumber
             << ". We planed: " << n << endl;
         return false;
     }
     
-    // Добавляем координаты новых слоев (первый есть - так что их на 1 меньше)
-	for (int layer = 1; layer <= LayerNumber-1; layer++)
+    // Добавляем координаты новых слоев (первый слой - это нижние точки первых призм)
+	for (int layer = 1; layer <= LayerNumber; layer++)
 		for (int i = 0; i < CursorNodes; i++) {
             koor[i + CursorNodes*layer][0] = koor[i][0];    // Копируем x и y-координаты 
             koor[i + CursorNodes*layer][1] = koor[i][1]; 
@@ -258,10 +259,14 @@ bool transformer::MakeLayer(){
             materials[i+CursorNodes*layer] = materials[i];
         }
 
+
     // После разбития мы получили плоскость с четырехугольниками на ней. Превратим их параллельным переносом в призмы 
     for (int i = 0; i < CursorQuad; i++)
-        for (int vertex = 0; vertex < 4; vertex++)
+        for (int vertex = 0; vertex < 4; vertex++){
+            if( quad[i][vertex] + CursorNodes > n )
+                cout << "Does not good!" << quad[i][vertex] + CursorNodes << "  " << n << endl;
             quad[i][vertex+4] = quad[i][vertex] + CursorNodes;//смещение задаем количеством существующих узлов
+        }
     // Создаем новые слои
 	for (int layer = 1; layer <= LayerNumber-1; layer++)
         for (int i = 0; i < CursorQuad; i++)
