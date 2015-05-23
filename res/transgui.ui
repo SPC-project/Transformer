@@ -35,8 +35,5 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="transgui.qrc"/>
- </resources>
  <connections/>
 </ui>

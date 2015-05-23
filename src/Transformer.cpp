@@ -13,18 +13,19 @@ transformer::transformer(int LNumber, float LWidth, double ang){
 	LayerNumber = LNumber;
 	LayerWidth = LWidth;
 
+    // TODO: РќРµ РґРѕР»Р¶РЅРѕ Р»Рё Р±С‹С‚СЊ 1, 2, 3, 4 - РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕР»РёС‡РµСЃС‚РІР° РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹С… С‡РµС‚РІРµСЂС‚РµР№
 	QuartNumber = angle / 90 + 2;
 	if (angle < 90)
 		QuartNumber = 1;
 }
 
 void transformer::CreateSpace(){
+    // TODO: РїСЂРѕРІРµСЂРёС‚СЊ, РЅРµ РёР·Р±С‹С‚РѕС‡РЅРѕ Р»Рё РІС‹РґРµР»СЏРµРј
 	n = (elements * 3 + nodes + 1)*(LayerNumber + 1)*QuartNumber;
 
 	inds = new int*[elements];
 	for (int i = 0; i < elements; i++)
 		inds[i] = new int[3];
-
 
 	koor = new double*[n];
 	for (int i = 0; i < n; i++)
@@ -38,7 +39,7 @@ void transformer::CreateSpace(){
 	for (int i = 0; i < elements * 3; i++)
 		mid[i] = new int[3];
 
-
+    materials = new int[n]; 
 }
 
 void transformer::SpaceTakesNull(){
@@ -46,9 +47,11 @@ void transformer::SpaceTakesNull(){
 		for (int j = 0; j < 3; j++)
 			inds[i][j] = 0;
 
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < n; i++){
 		for (int j = 0; j < 3; j++)
 			koor[i][j] = 0;
+        materials[i] = 1;   // 1 - С„РёРіСѓСЂР°. РџРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ РІСЃРµ С‚РѕС‡РєРё РїСЂРёРЅР°РґР»РµР¶Р°С‚ С„РёРіСѓСЂРµ
+    }
 
 	for (int i = 0; i < elements * 3 * LayerNumber*QuartNumber; i++)
 		for (int j = 0; j < 8; j++)
@@ -63,50 +66,66 @@ bool transformer::LoadFile(const char* name){
 	ifstream input(name);
 	char a = 's';
 
-	while (a != '=') //считываем, пока не доходим до знака =
+	while (a != '=') //СЃС‡РёС‚С‹РІР°РµРј, РїРѕРєР° РЅРµ РґРѕС…РѕРґРёРј РґРѕ Р·РЅР°РєР° =
 		input >> a;
-	input >> nodes;//после знака - количество узлов
+	input >> nodes;//РїРѕСЃР»Рµ Р·РЅР°РєР° - РєРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ
 
-	input >> a;//переводим курсор
+	input >> a;//РїРµСЂРµРІРѕРґРёРј РєСѓСЂСЃРѕСЂ
 
-	while (a != '=')//опять ищем знак =
+	while (a != '=')//РѕРїСЏС‚СЊ РёС‰РµРј Р·РЅР°Рє =
 		input >> a;
-	input >> elements;//после знака - количество элементов
+	input >> elements;//РїРѕСЃР»Рµ Р·РЅР°РєР° - РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ
 
-	CreateSpace(); //получив данные, создаем массивы для работы
-	SpaceTakesNull();//обнуляем их
+	CreateSpace(); //РїРѕР»СѓС‡РёРІ РґР°РЅРЅС‹Рµ, СЃРѕР·РґР°РµРј РјР°СЃСЃРёРІС‹ РґР»СЏ СЂР°Р±РѕС‚С‹
+	SpaceTakesNull();//РѕР±РЅСѓР»СЏРµРј РёС…
 
-	while (a != ']')//далее находим закрывающуюся скобку, после которой - матрица элементов
+	while (a != ']')//РґР°Р»РµРµ РЅР°С…РѕРґРёРј Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋСЃСЏ СЃРєРѕР±РєСѓ, РїРѕСЃР»Рµ РєРѕС‚РѕСЂРѕР№ - РјР°С‚СЂРёС†Р° СЌР»РµРјРµРЅС‚РѕРІ
 		input >> a;
 
-	for (int i = 0; i < elements; i++)//считываем матрицу элементов
+	for (int i = 0; i < elements; i++)//СЃС‡РёС‚С‹РІР°РµРј РјР°С‚СЂРёС†Сѓ СЌР»РµРјРµРЅС‚РѕРІ
 		for (int j = 0; j < 3; j++)
 			input >> inds[i][j];
 
-	input >> a;//снова переводим курсор
+	input >> a;//СЃРЅРѕРІР° РїРµСЂРµРІРѕРґРёРј РєСѓСЂСЃРѕСЂ
 
-	while (a != ']')//ищем следующую закрывающуюся скобку
+	while (a != ']')//РёС‰РµРј СЃР»РµРґСѓСЋС‰СѓСЋ Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋСЃСЏ СЃРєРѕР±РєСѓ
 		input >> a;
 
-	for (int i = 0; i < nodes; i++)//считываем матрицу координат
+	for (int i = 0; i < nodes; i++)//СЃС‡РёС‚С‹РІР°РµРј РјР°С‚СЂРёС†Сѓ РєРѕРѕСЂРґРёРЅР°С‚
 		for (int j = 0; j < 2; j++)
 			input >> koor[i][j];
 
 	CursorNodes = nodes;
 
+
+	input >> a; // РќРµ РґРѕ РєРѕРЅС†Р° РїРѕРЅРёРјР°СЋ, РґР»СЏ С‡РµРіРѕ С‚СѓС‚ СЃС‡РёС‚Р°С‚СЊ РЅСѓР¶РЅРѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ. РќРѕ РёРЅР°С‡Рµ СЂР°Р±РѕС‚Р°РµС‚ РїР»РѕС…Рѕ
+	while (a != ']') // РРіРЅРѕСЂРёСЂСѓРµРј [contact]
+		input >> a;
+	input >> a;
+	while (a != ']') // РРіРЅРѕСЂРёСЂСѓРµРј [force]
+		input >> a;
+	input >> a;
+	while (a != ']')// Р“РѕС‚РѕРІРёРјСЃСЏ СЃС‡РёС‚Р°С‚СЊ [material]
+		input >> a;
+
+    for(int i=0; i < nodes; i++)
+        input >> materials[i];
+
 	input.close();
 	return 0;
 }
 
+// Р Р°Р·Р±РёРІР°РµРј С‚СЂРµСѓРіРѕР»СЊРЅРёРєРё РЅР° 3 С‡РµС‚С‹СЂРµС…СѓРіРѕР»СЊРЅРёРєР° (СЃРѕРµРґРёРЅСЏСЏ РјРµРґРёР°РЅС‹ СЃС‚РѕСЂРѕРЅ СЃ С†РµРЅС‚СЂРѕРј)
 bool transformer::Partition(){
 	int mdot[3], cdot;
 	for (int i = 0; i < elements; i++){
-		mdot[0] = FindMid(inds[i][0], inds[i][1]);
-		mdot[1] = FindMid(inds[i][0], inds[i][2]);
-		mdot[2] = FindMid(inds[i][1], inds[i][2]);
-		cdot = FindCentral(mdot[0], mdot[1], mdot[2]);//находим середину треугольника
+		mdot[0] = GetEdgeMid_inds(inds[i][0], inds[i][1]);
+		mdot[1] = GetEdgeMid_inds(inds[i][0], inds[i][2]);
+		mdot[2] = GetEdgeMid_inds(inds[i][1], inds[i][2]);
+		cdot = GetCentralDot_inds(mdot[0], mdot[1], mdot[2]);//РЅР°С…РѕРґРёРј СЃРµСЂРµРґРёРЅСѓ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
 
-		quad[CursorQuad][0] = inds[i][0];//записываем в массив полученые четырехугольники
+        // Р—Р°РїРёСЃС‹РІР°РµРј РІ РјР°СЃСЃРёРІ РїРѕР»СѓС‡РµРЅРЅС‹Рµ С‡РµС‚С‹СЂРµС…СѓРіРѕР»СЊРЅРёРєРё (quad[4..7] РїРѕРєР° РёРіРЅРѕСЂРёСЂСѓРµРј) 
+		quad[CursorQuad][0] = inds[i][0];
 		quad[CursorQuad][1] = mdot[0];
 		quad[CursorQuad][2] = cdot;
 		quad[CursorQuad][3] = mdot[1];
@@ -121,55 +140,68 @@ bool transformer::Partition(){
 		quad[CursorQuad][2] = cdot;
 		quad[CursorQuad][3] = mdot[2];
 		CursorQuad++;
-
-		//SaveFile();
 	}
     
 	return 0;
 }
 
-
-int transformer::FindMid(int max, int min){
-
-	if (max < min){ //корректно выбираем элементы для положительного результата вычитания
-		max += min;
-		min = max - min;
-		max = max - min;
+int transformer::GetEdgeMid_inds(int start_inds, int fin_inds){
+	if (start_inds > fin_inds){  //РєРѕСЂСЂРµРєС‚РЅРѕ РІС‹Р±РёСЂР°РµРј СЌР»РµРјРµРЅС‚С‹ РґР»СЏ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕРіРѕ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІС‹С‡РёС‚Р°РЅРёСЏ (РёРЅРґРµРєСЃС‹ РґР°РЅС‹ РІ РїРѕСЂСЏРґРєРµ СЂРѕСЃС‚Р° Р·РЅР°С‡РµРЅРёР№ x-,y-РєРѕРѕСЂРґРёРЅР°С‚)
+        int hold = start_inds;
+        start_inds = fin_inds;
+        fin_inds = hold;
 	}
-	max--;//уменьшаем на один, т.к. используем, как индекс массива, а не номер узла
-	min--;
-
-	for (int i = CursorMid; i >= 0; i--)//пытаемся найти данную сторону в массиве уже известных сторон со средними точками
-		if (max == mid[i][0] && min == mid[i][1])
+	start_inds--;//СѓРјРµРЅСЊС€Р°РµРј РЅР° РѕРґРёРЅ, РёР±Рѕ РёСЃРїРѕР»СЊР·СѓРµРј, РєР°Рє РёРЅРґРµРєСЃ РјР°СЃСЃРёРІР°, Р° РЅРµ РЅРѕРјРµСЂ СѓР·Р»Р°
+	fin_inds--;
+    
+    // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ РІС‹С‡РёСЃР»СЏР»Р°СЃСЊ Р»Рё СЃРµСЂРµРґРёРЅР° СЌС‚РѕРіРѕ РѕС‚СЂРµР·РєР° СЂР°РЅРµРµ
+    for (int i = CursorMid; i >= 0; i--) 
+		if (start_inds == mid[i][0] && fin_inds == mid[i][1])
 			return (mid[i][2] + 1);
-	//если не нашли, то вычисляем среднюю точку и сразу заносим ее в матрицу координат
-	koor[CursorNodes][0] = (koor[max][0] - koor[min][0]) / 2 + koor[min][0];//середина по Х
-	koor[CursorNodes][1] = (koor[max][1] - koor[min][1]) / 2 + koor[min][1];//середина по У
-	mid[CursorMid][0] = max;//далее заносим среднюю точку в массив найденых точек
-	mid[CursorMid][1] = min;
-	mid[CursorMid][2] = CursorNodes;//записываем номер узла
-	CursorMid++;//перемещаем курсоры массивов на следующую позицию
+	// Р’С‹С‡РёСЃР»СЏРµРј СЃСЂРµРґРЅСЋСЋ С‚РѕС‡РєСѓ Рё РѕР±РЅРѕРІР»СЏРµРј РґР°РЅРЅС‹Рµ
+	koor[CursorNodes][0] = (koor[fin_inds][0] - koor[start_inds][0]) / 2 + koor[start_inds][0];//СЃРµСЂРµРґРёРЅР° РїРѕ РҐ
+	koor[CursorNodes][1] = (koor[fin_inds][1] - koor[start_inds][1]) / 2 + koor[start_inds][1];//СЃРµСЂРµРґРёРЅР° РїРѕ РЈ
+    if( materials[start_inds] == 0 || materials[fin_inds] == 0 ) // РћС‚СЂРµР·РѕРє СЃ "РІРѕР·РґСѓС€РЅРѕР№" С‚РѕС‡РєРѕР№ - "РІРѕР·РґСѓС€РЅС‹Р№" - РєР°Рє Рё СЃРµСЂРµРґРёРЅР°
+        materials[CursorNodes] = 0;
+	mid[CursorMid][0] = start_inds;//РґР°Р»РµРµ Р·Р°РЅРѕСЃРёРј СЃСЂРµРґРЅСЋСЋ С‚РѕС‡РєСѓ РІ РјР°СЃСЃРёРІ РїСЂРѕСЃС‡РёС‚Р°РЅРЅС‹С… СЃС‚РѕСЂРѕРЅ
+	mid[CursorMid][1] = fin_inds;
+	mid[CursorMid][2] = CursorNodes;//Р·Р°РїРёСЃС‹РІР°РµРј РЅРѕРјРµСЂ СѓР·Р»Р°
+	CursorMid++;//РїРµСЂРµРјРµС‰Р°РµРј РєСѓСЂСЃРѕСЂС‹ РјР°СЃСЃРёРІРѕРІ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ РїРѕР·РёС†РёСЋ
 	CursorNodes++;
 
 	return CursorNodes;
 }
 
-int transformer::FindCentral(int a, int b, int c){
+int transformer::GetCentralDot_inds(int a, int b, int c){
 	a--; b--; c--;
-	koor[CursorNodes][0] = (koor[a][0] + koor[b][0] + koor[c][0]) / 3.0;//создаем новый узел и передаем ему координаты середины треугольника
+	koor[CursorNodes][0] = (koor[a][0] + koor[b][0] + koor[c][0]) / 3.0;//СЃРѕР·РґР°РµРј РЅРѕРІС‹Р№ СѓР·РµР» Рё РїРµСЂРµРґР°РµРј РµРјСѓ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЃРµСЂРµРґРёРЅС‹ С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°
 	koor[CursorNodes][1] = (koor[a][1] + koor[b][1] + koor[c][1]) / 3.0;
-	CursorNodes++;//перемещаем курсор
+     // Р•СЃР»Рё С‚СЂРµСѓРіРѕР»СЊРЅРёРє СЃРѕРґРµСЂР¶РёС‚ "РІРѕР·РґСѓС€РЅСѓСЋ" С‚РѕС‡РєСѓ - С‚Рѕ СЃСЂРµРґРЅСЏСЏ С‚РѕС‡РєР° С‚Р°РєР¶Рµ Р±СѓРґРµС‚ "РІРѕР·РґСѓС€РЅРѕР№"
+    if( materials[a] == 0 || materials[b] == 0 || materials[c] == 0 )
+        materials[CursorNodes] = 0;
+	CursorNodes++;//РїРµСЂРµРјРµС‰Р°РµРј РєСѓСЂСЃРѕСЂ
 	return CursorNodes;
 }
 
+// Р¤РѕСЂРјР°С‚ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С…: 
+// - N,M - РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ Рё СѓР·Р»РѕРІ
+// - N СЃС‚СЂРѕРє - РёРЅРґРµРєСЃС‹ РІРµСЂС€РёРЅ i-РіРѕ СЌР»РµРјРµРЅС‚Р° РІ РјР°С‚СЂРёС†Рµ СѓР·Р»РѕРІ.
+// - M СЃС‚СЂРѕРє - РјР°С‚СЂРёС†Р° СѓР·Р»РѕРІ
+// - M СЃС‚СЂРѕРє - РјР°С‚РµСЂРёР°Р» k-РіРѕ СѓР·Р»Р°
+// РЎР°РєСЂР°Р»СЊРЅС‹Р№ СЃРјС‹СЃР» РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С„Р°Р№Р»РѕРІ grid.txt Рё bars.txt: РЎРµСЂРіРµСЋ РџР°С‰РµРЅРєРѕ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ) РЅР° С‚РѕС‚ РјРѕРјРµРЅС‚ С‚Р°Рє Р±С‹Р»Рѕ СѓРґРѕР±РЅРµРµ
 bool transformer::SaveFile(const char* name){
-	ofstream grid("grid.txt");//Создаем потоки вывода
+	ofstream grid("grid.txt");//РЎРѕР·РґР°РµРј РїРѕС‚РѕРєРё РІС‹РІРѕРґР°
 	ofstream bars("bars.txt");
 	ofstream dat(name);
-	dat << endl << CursorQuad*LayerNumber << "  " << CursorNodes*(LayerNumber + 1) << endl;
+    const int ELEM_COUNT = CursorQuad*LayerNumber;
+    const int EDGE_COUNT = CursorNodes*(LayerNumber + 1);
+    const int EDGE_IN_ELEM = 8; // Р­Р»РµРјРµРЅС‚: РїСЂРёР·РјР°С‚РёС‡РµСЃРєРёР№ РІРѕСЃСЊРјРёРіСЂР°РЅРЅРёРє (СЃРѕР·РґР°РЅРЅС‹Р№ РїР°СЂР°Р»Р»РµР»СЊРЅС‹Рј РїРµСЂРµРЅРѕСЃРѕРј С‡РµС‚С‹СЂРµС…СѓРіРѕР»СЊРЅРёРєР° РїРѕ z)
+    const int EUCLID_SPACE = 3; // x, y, z
 
-	for (int i = 0; i < CursorQuad*LayerNumber; i++){//Выводим массив элементов в документы bars и data
-		for (int j = 0; j < 8; j++){
+	dat << endl << ELEM_COUNT << "  " << EDGE_COUNT << endl;
+
+	for (int i = 0; i < ELEM_COUNT; i++){//Р’С‹РІРѕРґРёРј РјР°СЃСЃРёРІ СЌР»РµРјРµРЅС‚РѕРІ РІ РґРѕРєСѓРјРµРЅС‚С‹ bars Рё data
+		for (int j = 0; j < EDGE_IN_ELEM; j++){
 			bars << quad[i][j] << " ";
 			dat << quad[i][j] << " ";
 		}
@@ -177,11 +209,8 @@ bool transformer::SaveFile(const char* name){
 		dat << endl;
 	}
 
-	//dat << endl << "0 0 0" << endl;//Компенсируем особенности FigureBuilder. Переданный массив координат нумеруется там с 0
-	//поэтому добавляем еще одну точку, для сдвига всего массива на одну позицию. При нумерации с первого элемента - убрать строку
-
-	for (int i = 0; i < CursorNodes*(LayerNumber + 1); i++){ // Выводим массив координат
-		for (int j = 0; j < 3; j++){
+	for (int i = 0; i < EDGE_COUNT; i++){ // Р’С‹РІРѕРґРёРј РјР°СЃСЃРёРІ РєРѕРѕСЂРґРёРЅР°С‚
+		for (int j = 0; j < EUCLID_SPACE; j++){
 			grid << koor[i][j] << " ";
 			dat << koor[i][j] << " ";
 		}
@@ -189,42 +218,39 @@ bool transformer::SaveFile(const char* name){
 		dat << endl;
 	}
 
+    for( int i = 0; i < EDGE_COUNT; i++ ) {
+        dat << materials[i] << endl;
+    }
 
-
-
-	grid.close();//Закрываем потоки вывода
+	grid.close();//Р—Р°РєСЂС‹РІР°РµРј РїРѕС‚РѕРєРё РІС‹РІРѕРґР°
 	bars.close();
 	dat.close();
 
 	return 0;
 }
 
-
 bool transformer::MakeLayer(){
-	/*Стоит обратить внимание, что курсоры Nodes и Quad на данном этапе содержат количество существующих одномерных узлов
-	и элементов. То есть узлов и элементов, которые образуют одну плоскость. Дальше мы будем "вытягивать" эту плоскость.
-	А если точнее - строить над ней аналогичные. Для того, чтобы получить общее количество узлов или элементов, надо домножить
-	курсоры на количество слоев (+1)*/
+	/*РЎС‚РѕРёС‚ РѕР±СЂР°С‚РёС‚СЊ РІРЅРёРјР°РЅРёРµ, С‡С‚Рѕ РєСѓСЂСЃРѕСЂС‹ Nodes Рё Quad РЅР° РґР°РЅРЅРѕРј СЌС‚Р°РїРµ СЃРѕРґРµСЂР¶Р°С‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… РѕРґРЅРѕРјРµСЂРЅС‹С… СѓР·Р»РѕРІ
+	Рё СЌР»РµРјРµРЅС‚РѕРІ. РўРѕ РµСЃС‚СЊ СѓР·Р»РѕРІ Рё СЌР»РµРјРµРЅС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РѕР±СЂР°Р·СѓСЋС‚ РѕРґРЅСѓ РїР»РѕСЃРєРѕСЃС‚СЊ. Р”Р°Р»СЊС€Рµ РјС‹ Р±СѓРґРµРј "РІС‹С‚СЏРіРёРІР°С‚СЊ" СЌС‚Сѓ РїР»РѕСЃРєРѕСЃС‚СЊ.
+	Рђ РµСЃР»Рё С‚РѕС‡РЅРµРµ - СЃС‚СЂРѕРёС‚СЊ РЅР°Рґ РЅРµР№ Р°РЅР°Р»РѕРіРёС‡РЅС‹Рµ. Р”Р»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РѕР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓР·Р»РѕРІ РёР»Рё СЌР»РµРјРµРЅС‚РѕРІ, РЅР°РґРѕ РґРѕРјРЅРѕР¶РёС‚СЊ
+	РєСѓСЂСЃРѕСЂС‹ РЅР° РєРѕР»РёС‡РµСЃС‚РІРѕ СЃР»РѕРµРІ (+1)*/
 
-	cout << "New inds creating \n";
-	for (int j = 1; j <= LayerNumber; j++) //добавляем координаты новых слоев
-		for (int i = 0; i < CursorNodes; i++)
-			for (int k = 0; k < 3; k++){
-				if (k != 2)
-					koor[i + CursorNodes*j][k] = koor[i][k]; // дублируем координаты Х и У
-				else
-					koor[i + CursorNodes*j][k] = LayerWidth * j;// координату Z вычисляем путем умножения толщины слоя на его номер
-			}
+	for (int j = 1; j <= LayerNumber; j++) //РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅРѕРІС‹С… СЃР»РѕРµРІ
+		for (int i = 0; i < CursorNodes; i++) {
+            koor[i + CursorNodes*j][0] = koor[i][0];    // РљРѕРїРёСЂСѓРµРј x Рё y-РєРѕРѕСЂРґРёРЅР°С‚С‹ 
+            koor[i + CursorNodes*j][1] = koor[i][1]; 
+            koor[i + CursorNodes*j][2] = LayerWidth * j;// Z-РєРѕРѕСЂРґРёРЅР°С‚Сѓ РІС‹С‡РёСЃР»СЏРµРј РїСѓС‚РµРј СѓРјРЅРѕР¶РµРЅРёСЏ С‚РѕР»С‰РёРЅС‹ СЃР»РѕСЏ РЅР° РµРіРѕ РЅРѕРјРµСЂ
+            materials[i+CursorNodes*j] = materials[i];
+        }
 
 
-	cout << "New layers creating \n";
 	for (int j = 1; j <= LayerNumber; j++){
-		if (LayerNumber != 1 && j != LayerNumber)//Если слой не 1, то создаем "нижние" плоскости всех слоев
+		if (LayerNumber != 1 && j != LayerNumber)//Р•СЃР»Рё СЃР»РѕР№ РЅРµ 1, С‚Рѕ СЃРѕР·РґР°РµРј "РЅРёР¶РЅРёРµ" РїР»РѕСЃРєРѕСЃС‚Рё РІСЃРµС… СЃР»РѕРµРІ
 			for (int i = 0; i < CursorQuad; i++)
 				for (int k = 0; k < 4; k++)
-					quad[i + CursorQuad*j][k] = quad[i][k] + CursorNodes*j;//смещение задаем количеством существующих узлов
+					quad[i + CursorQuad*j][k] = quad[i][k] + CursorNodes*j;//СЃРјРµС‰РµРЅРёРµ Р·Р°РґР°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… СѓР·Р»РѕРІ
 
-		for (int i = 0; i < CursorQuad; i++)//Задаем "верхние" плоскости слоя или слоев
+		for (int i = 0; i < CursorQuad; i++)//Р—Р°РґР°РµРј "РІРµСЂС…РЅРёРµ" РїР»РѕСЃРєРѕСЃС‚Рё СЃР»РѕСЏ РёР»Рё СЃР»РѕРµРІ
 			for (int k = 0; k < 4; k++)
 				quad[i + CursorQuad*(j - 1)][k + 4] = quad[i + CursorQuad*(j - 1)][k] + CursorNodes;
 	}
@@ -233,11 +259,11 @@ bool transformer::MakeLayer(){
 }
 
 void transformer::swap(int a, int b){
-
+    double hold;
 	for (int i = 0; i < 3; i++){
-		koor[a][i] += koor[b][i];
-		koor[b][i] = koor[a][i] - koor[b][i];
-		koor[a][i] = koor[a][i] - koor[b][i];
+        hold = koor[b][i];
+        koor[b][i] = koor[a][i];
+        koor[a][i] = hold;
 	}
 }
 
@@ -282,7 +308,7 @@ void transformer::shaker(int Left, int Right, bool k){
 			}
 		}
 		Left = Left + 1;
-		//Сдвигаем к концу массива "тяжелые элементы"
+		//РЎРґРІРёРіР°РµРј Рє РєРѕРЅС†Сѓ РјР°СЃСЃРёРІР° "С‚СЏР¶РµР»С‹Рµ СЌР»РµРјРµРЅС‚С‹"
 		for (int i = Left; i < Right; i++)
 		{
 			if /*(koor[i][k] > koor[i+1][k] ||(koor[i][k] == koor[i+1][k] && koor[i][k1] > koor[i+1][k1]))*/
@@ -296,7 +322,7 @@ void transformer::shaker(int Left, int Right, bool k){
 }
 
 void transformer::fullReflect(int quart){
-	/*NoReflectNodes = CursorNodes; // вынести глобальнее
+	/*NoReflectNodes = CursorNodes; // РІС‹РЅРµСЃС‚Рё РіР»РѕР±Р°Р»СЊРЅРµРµ
 	NoReflectQuad = CursorQuad;
 	QuartNumber = 1;*/
 
