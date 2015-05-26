@@ -15,3 +15,8 @@ set(CMAKE_C_FLAGS_DEBUG ${DEBUG_FLAGS})
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 add_subdirectory(build)
+add_custom_target(run
+    COMMAND ${prog_name}
+    DEPENDS ${prog_name}
+    WORKING_DIRECTORY ./bin
+)
