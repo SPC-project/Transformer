@@ -4,13 +4,14 @@
 #include <cmath>
 
 using namespace std;
-transformer::transformer(int LNumber, float LWidth, double ang){
+transformer::transformer(int LNum, float LWidth, double ang, int CNum){
 	nodes = 0;
 	angle = ang;
 	//QuartNumber = 1;
 	CursorMid = 0;
 	CursorQuad = 0;
-	LayerNumber = LNumber;
+	LayerNumber = LNum;
+    CapLayerNum = CNum;
 	LayerWidth = LWidth;
 
     // TODO: Не должно ли быть 1, 2, 3, 4 - в зависимости от количества отображаемых четвертей
@@ -22,48 +23,40 @@ transformer::transformer(int LNumber, float LWidth, double ang){
 void transformer::CreateSpace(){
     // Разбиение создает на каждый элемент по 3 дополнительные точки (середины отрезков и центр)
     // После разбития происходит вытягивание и отражение (относительно [0;0]) в плоскости
-    // Слоев на один больше, так как нужен еще один, чтобы фигура состояла из призм (1 слой призм - это два плоских слоя)
+    // Слоев фигуры на один больше, так они состоят из призм, а 1 слой призм - это два плоских слоя (2 слоя призм - 3 плоских)
+    // Слоев "воздушных крышек" это не касается: они пристраиваются к фигуре
     // Память выделяется избыточно, так как дополнительные точки соприкасающихся треугольников могут совпадать
-	n = (elements * 3 + nodes) * (LayerNumber+1) * QuartNumber;
+    //        Разбиение                      Вытягивание            Отражение
+	n = (elements * 3 + nodes) * (LayerNumber+1 + CapLayerNum*2) * QuartNumber;
 
 	inds = new int*[elements];
-	for (int i = 0; i < elements; i++)
+	for (int i = 0; i < elements; i++) {
 		inds[i] = new int[3];
+        inds[i][0] = inds[i][1] = inds[i][2] = 0;
+    }
 
     // Узлы характеризуются пространственными координатами и материалами, из которого они сделаны 
 	koor = new double*[n];
-	for (int i = 0; i < n; i++)
-		koor[i] = new double[3];
-    materials = new int[n]; 
-
-    // Из одного треугольника получается три призматических восьмиугольника
-	quad = new int*[elements * 3 * LayerNumber*QuartNumber];
-	for (int i = 0; i < elements * 3 * LayerNumber*QuartNumber; i++)
-		quad[i] = new int[8];
-
-	edge_inds = new int*[elements * 3];
-	for (int i = 0; i < elements * 3; i++)
-		edge_inds[i] = new int[3];
-}
-
-void transformer::SpaceTakesNull(){
-	for (int i = 0; i < elements; i++)
-		for (int j = 0; j < 3; j++)
-			inds[i][j] = 0;
-
-	for (int i = 0; i < n; i++){
-		for (int j = 0; j < 3; j++)
-			koor[i][j] = 0;
-        materials[i] = 1;   // 1 - фигура. По-умолчанию все точки принадлежат фигуре
+    materials = new int[n];
+    for (int i = 0; i < n; i++){
+        materials[i] = 1;
+        koor[i] = new double[3];
+        koor[i][0] = koor[i][1] = koor[i][2] = 0.0;
     }
 
-	for (int i = 0; i < elements * 3 * LayerNumber*QuartNumber; i++)
-		for (int j = 0; j < 8; j++)
-			quad[i][j] = 0;
+    // Из одного плоского треугольника получится три призматических восьмиугольника
+	quad = new int*[elements * 3 * (LayerNumber+CapLayerNum*2) * QuartNumber];
+	for (int i = 0; i < elements * 3 * (LayerNumber+CapLayerNum*2) * QuartNumber; i++) {
+		quad[i] = new int[8];
+		for (int vertex = 0; vertex < 8; vertex++)
+			quad[i][vertex] = 0;
+    }
 
-	for (int i = 0; i < elements * 3; i++)
-		for (int j = 0; j < 3; j++)
-			edge_inds[i][j] = 0;
+	edge_inds = new int*[elements * 3];
+	for (int i = 0; i < elements * 3; i++) {
+		edge_inds[i] = new int[3];
+        edge_inds[i][0] = edge_inds[i][1] = edge_inds[i][2] = 0;
+    }
 }
 
 bool transformer::LoadFile(const char* name){
@@ -81,8 +74,6 @@ bool transformer::LoadFile(const char* name){
 	input >> elements;//после знака - количество элементов
 
 	CreateSpace(); //получив данные, создаем массивы для работы
-	SpaceTakesNull();//обнуляем их
-
 	while (a != ']')//далее находим закрывающуюся скобку, после которой - матрица элементов
 		input >> a;
 
@@ -115,7 +106,6 @@ bool transformer::LoadFile(const char* name){
     for(int i=0; i < nodes; i++)
         input >> materials[i];
 
-
 	input.close();
 	return 0;
 }
@@ -146,7 +136,7 @@ bool transformer::Partition(){
 		quad[CursorQuad][3] = mdot[2];
 		CursorQuad++;
 	}
-    
+
 	return 0;
 }
 
@@ -198,10 +188,11 @@ bool transformer::SaveFile(const char* name){
 	ofstream grid("grid.txt");//Создаем потоки вывода
 	ofstream bars("bars.txt");
 	ofstream dat(name);
-    const int ELEM_COUNT = CursorQuad*LayerNumber;
-    const int EDGE_COUNT = CursorNodes*(LayerNumber+1); // на один слой больше, так как призма на призме - это три, а не два слоя
+    const int ELEM_COUNT = CursorQuad*(LayerNumber + 2*CapLayerNum);
     const int EDGE_IN_ELEM = 8; // Элемент: призматический восьмигранник (созданный параллельным переносом четырехугольника по z)
     const int EUCLID_SPACE = 3; // x, y, z
+    // На один слой больше, так как призма на призме - это три, а не два слоя
+    const int EDGE_COUNT = CursorNodes*(LayerNumber+1 + 2*CapLayerNum);
 
 	dat << endl << ELEM_COUNT << "  " << EDGE_COUNT << endl;
 
@@ -234,45 +225,53 @@ bool transformer::SaveFile(const char* name){
 	return 0;
 }
 
-bool transformer::MakeLayer(){
+bool transformer::CreateLayers(){
 	/*Стоит обратить внимание, что курсоры Nodes и Quad на данном этапе содержат количество существующих одномерных узлов
 	и элементов. То есть узлов и элементов, которые образуют одну плоскость. Дальше мы будем "вытягивать" эту плоскость.
 	А если точнее - строить над ней аналогичные. Для того, чтобы получить общее количество узлов или элементов, надо домножить
 	курсоры на количество слоев (+1)*/
 
+    const int X = 0, Y = 1, Z = 2;
+    const int LAYERS = LayerNumber + 2*CapLayerNum;
     if( CursorNodes > elements*3 + nodes ){
         cout << "To few points in layer: " << CursorNodes << ". We planed: " << elements*3 + nodes << endl;
         return false;
     }            
-    if( CursorNodes-1 + CursorNodes*(LayerNumber) > n ) {
-        cout << "It is more points in figure, than we planed: " << (CursorNodes-1) + CursorNodes*LayerNumber
+    if( CursorNodes-1 + CursorNodes*LAYERS > n ) {
+        cout << "It is more points in figure, than we planed: " << (CursorNodes-1) + CursorNodes*LAYERS
             << ". We planed: " << n << endl;
         return false;
     }
     
-    // Добавляем координаты новых слоев (первый слой - это нижние точки первых призм)
-	for (int layer = 1; layer <= LayerNumber; layer++)
+    for (int i = 0; i < CursorNodes; i++) {
+        koor[i][Z] = 0; 
+    }
+    // Добавляем координаты точек новых слоев (слой 1 - это нижние точки первых призм)
+	for (int layer = 1; layer <= LAYERS; layer++)
 		for (int i = 0; i < CursorNodes; i++) {
-            koor[i + CursorNodes*layer][0] = koor[i][0];    // Копируем x и y-координаты 
-            koor[i + CursorNodes*layer][1] = koor[i][1]; 
-            koor[i + CursorNodes*layer][2] = LayerWidth * layer; // z-координата зависит от толщины слоя
+            koor[i + CursorNodes*layer][X] = koor[i][X]; 
+            koor[i + CursorNodes*layer][Y] = koor[i][Y]; 
+            koor[i + CursorNodes*layer][Z] = LayerWidth * layer;
             materials[i+CursorNodes*layer] = materials[i];
         }
-
+    if (CapLayerNum > 0) // Преобразуем CapLayerNum нижних и верхних слоев в воздушные
+        for (int layer = 0; layer < CapLayerNum; layer++) 
+            for (int i = 0; i < CursorNodes; i++) {
+                materials[i+CursorNodes*layer] = 0; // нижний слой (ближний к xy)
+                materials[i+CursorNodes*(LAYERS-layer)] = 0;
+            }
 
     // После разбития мы получили плоскость с четырехугольниками на ней. Превратим их параллельным переносом в призмы 
     for (int i = 0; i < CursorQuad; i++)
         for (int vertex = 0; vertex < 4; vertex++){
-            if( quad[i][vertex] + CursorNodes > n )
-                cout << "Does not good!" << quad[i][vertex] + CursorNodes << "  " << n << endl;
             quad[i][vertex+4] = quad[i][vertex] + CursorNodes;//смещение задаем количеством существующих узлов
         }
     // Создаем новые слои
-	for (int layer = 1; layer <= LayerNumber-1; layer++)
+	for (int layer = 1; layer < LAYERS; layer++)
         for (int i = 0; i < CursorQuad; i++)
             for (int k = 0; k < 8; k++)
                 quad[i + CursorQuad*layer][k] = quad[i][k] + CursorNodes*layer;//смещение задаем количеством существующих узлов
-	
+
 	return true;
 }
 

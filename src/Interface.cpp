@@ -16,55 +16,7 @@ PrInterface::PrInterface(){
 	exitAction = new QAction(tr("Выход"), this);
 	autorAction = new QAction(tr("Об авторе"), this);
 	aboutAction = new QAction(tr("О программе"), this);
-
-	btn = new QPushButton("Приступить!", this);
-	btn->move(150, 220);
-
-	chboxes[0] = new QCheckBox(tr("Сортировать\n координаты"), this);
-	chboxes[0]->setGeometry(10, 20, 130, 40);
-	chboxes[1] = new QCheckBox(tr("Отцентровать по X"), this);
-	chboxes[1]->setGeometry(150, 130, 160, 20);
-	chboxes[2] = new QCheckBox(tr("Отцентровать по Y"), this);
-	chboxes[2]->setGeometry(150, 150, 160, 20);
-	chboxes[3] = new QCheckBox(tr("Отцентровать по Z"), this);
-	chboxes[3]->setGeometry(150, 170, 160, 20);
-	chboxes[4] = new QCheckBox(tr("Отразить"), this);
-	chboxes[4]->setGeometry(10, 125, 100, 20);
-
-	combox = new QComboBox(this);
-	combox->move(10, 160);
-	combox->hide();
-	//FIXME combox->addItem("", QVariant(QVariant::String));
-	combox->addItem(tr("180°"), QVariant(QVariant::String));
-	combox->addItem(tr("270°"), QVariant(QVariant::String));
-	combox->addItem(tr("360°"), QVariant(QVariant::String));
-
-	spin = new QSpinBox(this);
-	spin->setMinimum(1);
-	spin->setGeometry(150, 50, 40, 25);
-
-	dspin = new QDoubleSpinBox(this);
-	dspin->setMinimum(0.01);
-	dspin->setValue(1);
-	dspin->setGeometry(150, 90, 60, 25);
-
-	rbut[0] = new QRadioButton("X", this);
-	rbut[0]->move(30, 55);
-	rbut[0]->hide();
-	rbut[1] = new QRadioButton("Y", this);
-	rbut[1]->move(30, 70);
-	rbut[1]->hide();
-	rbut[2] = new QRadioButton("Z", this);
-	rbut[2]->move(30, 85);
-	rbut[2]->hide();
-
-	LayerN = new QLabel("Количество слоев:", this);
-	LayerN->move(150, 25);
-	LayerW = new QLabel("Толщина слоя:", this);
-	LayerW->move(150, 67);
-
-
-	fileMenu = menuBar()->addMenu(tr("Файл"));
+    fileMenu = menuBar()->addMenu(tr("Файл"));
 	fileMenu->addAction(openAction);
 	fileMenu->addAction(saveAction);
 	fileMenu->addSeparator();
@@ -74,8 +26,59 @@ PrInterface::PrInterface(){
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(autorAction);
 
+	// Левая колонка
+    chboxes[0] = new QCheckBox(tr("Сортировать\n координаты"), this);
+	chboxes[0]->setGeometry(10, 10, 130, 40);
+    rbut[0] = new QRadioButton("X", this);
+	rbut[0]->move(30, 45);
+	rbut[0]->hide();
+	rbut[1] = new QRadioButton("Y", this);
+	rbut[1]->move(30, 60);
+	rbut[1]->hide();
+	rbut[2] = new QRadioButton("Z", this);
+	rbut[2]->move(30, 75);
+	rbut[2]->hide();
+	chboxes[4] = new QCheckBox(tr("Отразить"), this);
+	chboxes[4]->setGeometry(10, 105, 100, 20);
+    combox = new QComboBox(this);
+	combox->move(10, 130);
+	combox->hide();
+	//FIXME combox->addItem("", QVariant(QVariant::String));
+	combox->addItem(tr("180°"), QVariant(QVariant::String));
+	combox->addItem(tr("270°"), QVariant(QVariant::String));
+	combox->addItem(tr("360°"), QVariant(QVariant::String));
+
+    // Правая колонка
+    LayerN = new QLabel(tr("Количество слоев:"), this);
+    LayerN->setGeometry(150, 10, 140, 25);
+    spin = new QSpinBox(this);
+	spin->setMinimum(1);
+	spin->setGeometry(160, 30, 40, 25);
+    spin->setToolTip("в фигуре");
+    airCapLength = new QSpinBox(this);
+    airCapLength->setMinimum(0);
+    airCapLength->setGeometry(220, 30, 40, 25);
+    airCapLength->setToolTip("под 'воздушные торцы'");
+
+	LayerW = new QLabel("Толщина слоя:", this);
+	LayerW->move(150, 50);
+	dspin = new QDoubleSpinBox(this);
+	dspin->setMinimum(0.01);
+	dspin->setValue(1);
+	dspin->setGeometry(175, 75, 60, 25);
+
+	chboxes[1] = new QCheckBox(tr("Отцентровать по X"), this);
+	chboxes[1]->setGeometry(150, 105, 160, 20);
+	chboxes[2] = new QCheckBox(tr("Отцентровать по Y"), this);
+	chboxes[2]->setGeometry(150, 125, 160, 20);
+	chboxes[3] = new QCheckBox(tr("Отцентровать по Z"), this);
+	chboxes[3]->setGeometry(150, 145, 160, 20);
+
+    // Нижняя часть
 	State = new QLabel(this);
-	State->setGeometry(10, 210, 150, 50);
+	State->setGeometry(10, 220, 150, 50);
+	btn = new QPushButton("Приступить!", this);
+	btn->move(150, 230);
 
 	Input = new QString("");
 	Output = new QString("");
@@ -186,7 +189,7 @@ void PrInterface::transformate(){
 		int a = 0;
 		if (chboxes[4]->isChecked())
 			a = 90 * combox->currentIndex() + 180;
-		Transform = new transformer(spin->value(), dspin->value(), a);
+		Transform = new transformer(spin->value(), dspin->value(), a, airCapLength->value());
 
 
 		QByteArray iqb = Input->toUtf8();
@@ -216,7 +219,7 @@ void PrInterface::transformate(){
 		}
 
 		State->setText(tr("Создание слоев..."));
-		if( !Transform->MakeLayer() ){
+		if( !Transform->CreateLayers() ){
             State->setText(tr("Проблемы с созданием слоев"));
             return;
         }

@@ -37,6 +37,7 @@ public:
 	QRadioButton * rbut[3];
 	QComboBox * combox;
 	QSpinBox* spin;
+    QSpinBox* airCapLength;
 	QDoubleSpinBox* dspin;
 	QLabel * LayerN;
 	QLabel * LayerW;
