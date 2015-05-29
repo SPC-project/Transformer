@@ -2,6 +2,7 @@
 bin/
 build/*
 !build/CMakeLists.txt
+!build/Qmake.pro
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake

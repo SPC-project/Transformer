@@ -6,9 +6,7 @@
 
 PrInterface::PrInterface(){
 	// Указываем кодировку этого файла для правильного отображения кириллицы
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8")); 
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-	QTextCodec::setCodecForTr(QTextCodec::codecForName ("UTF-8"));
 
     // Инициализация интерфейса
 	openAction = new QAction(tr("Открыть"), this);
