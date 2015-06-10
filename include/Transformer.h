@@ -26,6 +26,9 @@ private:
 	double turnKoor(int);
 	void turnNode(int, int, int);
 	bool testOtherNode(int fo, int one, int sec);
+    int  pointsInLayer();
+    int  countOfLayers();
+    int  countOfElemLayers();
 
 
 	int nodes;      // Начальное количество узлов

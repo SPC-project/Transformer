@@ -34,7 +34,6 @@ public:
 	QMenu * helpMenu;
 	QPushButton * btn;
 	QCheckBox * chboxes[5];
-    QRadioButton * sort_elem;
 	QRadioButton * rbut[3];
 	QComboBox * combox;
 	QSpinBox* spin;

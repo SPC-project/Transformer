@@ -5,7 +5,7 @@
 
 
 PrInterface::PrInterface(){
-	// Указываем кодировку этого файла для правильного отображения кириллицы
+	// Указываем кодировку этого файла для правильного отображения кириллицы.
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     // Инициализация интерфейса
@@ -41,7 +41,6 @@ PrInterface::PrInterface(){
     combox = new QComboBox(this);
 	combox->move(10, 130);
 	combox->hide();
-	//FIXME combox->addItem("", QVariant(QVariant::String));
 	combox->addItem(trUtf8("180°"), QVariant(QVariant::String));
 	combox->addItem(trUtf8("270°"), QVariant(QVariant::String));
 	combox->addItem(trUtf8("360°"), QVariant(QVariant::String));
@@ -74,9 +73,9 @@ PrInterface::PrInterface(){
 
     // Нижняя часть
 	State = new QLabel(this);
-	State->setGeometry(10, 220, 150, 50);
+	State->setGeometry(10, 220, 155, 50);
 	btn = new QPushButton(trUtf8("Приступить!"), this);
-	btn->move(150, 230);
+	btn->move(160, 230);
 
 	Input = new QString("");
 	Output = new QString("");
@@ -156,11 +155,11 @@ void PrInterface::save()
 			QByteArray oqb = Output->toUtf8();
 			char* out = oqb.data();
 			Transform->SaveFile(out);
-			State->setText("Сохранено!");
+			State->setText(trUtf8("Сохранено!"));
 		}
 	}
 	else
-		State->setText("Не сохранено");
+		State->setText(trUtf8("Не сохранено"));
 }
 
 void PrInterface::showAutor(){
