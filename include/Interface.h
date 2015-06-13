@@ -16,12 +16,12 @@
 #include <QMessageBox>
 #include "ui_transgui.h"
 
-class PrInterface : public QMainWindow
+class Interface : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	PrInterface();
+	Interface();
 
 	QFileDialog * Fdialog;
 
@@ -60,7 +60,7 @@ public:
 	void showAutor();
 
 public:
-	Ui::PrInterfaceClass ui;
+	Ui::InterfaceClass ui;
 };
 
 #endif // INTERFACE_H

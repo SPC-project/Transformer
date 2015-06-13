@@ -4,7 +4,7 @@
 #include <string>
 
 
-PrInterface::PrInterface(){
+Interface::Interface(){
 	// Указываем кодировку этого файла для правильного отображения кириллицы.
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
@@ -108,7 +108,7 @@ PrInterface::PrInterface(){
 
 }
 
-void PrInterface::open()
+void Interface::open()
 {
 	qDebug() << Input;
 	QString fname = QFileDialog::getOpenFileName(this, trUtf8("Открыть"), "",
@@ -120,7 +120,7 @@ void PrInterface::open()
         State->setText(trUtf8("Файл не выбран"));
 }
 
-void PrInterface::hideRb(){
+void Interface::hideRb(){
 
 	if (!chboxes[0]->isChecked()){
 		rbut[0]->hide();
@@ -135,14 +135,14 @@ void PrInterface::hideRb(){
 
 }
 
-void PrInterface::hideCb(){
+void Interface::hideCb(){
 	if (!chboxes[4]->isChecked())
 		combox->hide();
 	else
 		combox->show();
 }
 
-void PrInterface::save()
+void Interface::save()
 {
 	if (ready){
 		QString fname = QFileDialog::getSaveFileName(this, trUtf8("Сохранить"), "",
@@ -162,7 +162,7 @@ void PrInterface::save()
 		State->setText(trUtf8("Не сохранено"));
 }
 
-void PrInterface::showAutor(){
+void Interface::showAutor(){
 	QMessageBox::information(this, trUtf8("Об авторе"),
 		trUtf8("Автор программы: Ермаков Даниэль.\n"
 		"  E-Mail: dan-ermakov@rambler.ru\n"
@@ -171,14 +171,14 @@ void PrInterface::showAutor(){
 
 }
 
-void PrInterface::showAbout(){
+void Interface::showAbout(){
 	QMessageBox::information(this, trUtf8("О Программе"),
 		trUtf8("Данная программа служит для перехода от двумерного разбиения треугольниками к трехмерному разбиению прямыми призмами. \n\n")
 		, QMessageBox::Cancel);
 }
 
 
-void PrInterface::transformate(){
+void Interface::transformate(){
 
 	if (Input->compare("") != 0){
 		State->setText(trUtf8("Обработка данных"));
