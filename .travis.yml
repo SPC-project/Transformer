@@ -10,4 +10,4 @@ before_install:
   - g++ --version
   - sudo apt-get update -qq
   - git submodule update --init --recursive
-script: cmake . && make
+script: cd ./build && cmake . && make
