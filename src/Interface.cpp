@@ -55,7 +55,7 @@ Interface::Interface(){
     airCapLength = new QSpinBox(this);
     airCapLength->setMinimum(0);
     airCapLength->setGeometry(220, 30, 40, 25);
-    airCapLength->setToolTip(trUtf8("под 'воздушные торцы'"));
+    airCapLength->setToolTip(trUtf8("под 'воздушные шапки'"));
 
 	LayerW = new QLabel(trUtf8("Толщина слоя:"), this);
 	LayerW->move(150, 50);
