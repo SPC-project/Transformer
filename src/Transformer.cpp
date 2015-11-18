@@ -23,13 +23,18 @@ transformer::transformer(int LNum, float LWidth, double ang, int CNum){
 
 // Разбиение создает на каждый элемент по 4 дополнительные точки (середины отрезков и центр)
 int transformer::pointsInLayer(){
-    return elements*4 + nodes;
+    return (elements*4 + nodes) * QuartNumber;
 }
 
 // Слоев фигуры на один больше, так они состоят из призм, а 1 слой призм - это два плоских слоя (2 слоя призм - 3 плоских)
 // Слоев "воздушных крышек" это не касается: они пристраиваются к фигуре
 int transformer::countOfLayers(){
     return LayerNumber+1 + CapLayerNum*2;
+}
+
+// При разбиение один треугольник "распадается" на 3 призмы
+int transformer::countOfElements(){
+	return (elements*3) * QuartNumber;
 }
 
 int transformer::countOfElemLayers(){
@@ -130,7 +135,7 @@ bool transformer::Partition(){
 		mdot[0] = GetEdgeMid_inds(inds[i][0], inds[i][1]);
 		mdot[1] = GetEdgeMid_inds(inds[i][0], inds[i][2]);
 		mdot[2] = GetEdgeMid_inds(inds[i][1], inds[i][2]);
-		cdot = GetCentralDot_inds(mdot[0], mdot[1], mdot[2]);//находим середину треугольника
+		cdot = GetCentralDot_inds(mdot[0], mdot[1], mdot[2]);
 
         // Записываем в массив полученные четырехугольники (quad[4..7] пока игнорируем) 
 		quad[CursorQuad][0] = inds[i][0];
@@ -201,10 +206,10 @@ bool transformer::SaveFile(const char* name){
 	ofstream grid("grid.txt");//Создаем потоки вывода
 	ofstream bars("bars.txt");
 	ofstream dat(name);
-    const int ELEM_COUNT = CursorQuad*countOfElemLayers()*QuartNumber;
+    const int ELEM_COUNT = CursorQuad*countOfElemLayers();
     const int EDGE_IN_ELEM = 8; // Элемент: призматический восьмигранник (созданный параллельным переносом четырехугольника по z)
     const int EUCLID_SPACE = 3; // x, y, z
-    const int EDGE_COUNT = CursorNodes*countOfLayers()*QuartNumber;
+    const int EDGE_COUNT = CursorNodes*countOfLayers();
 
 	dat << endl << ELEM_COUNT << "  " << EDGE_COUNT << endl;
 
@@ -244,7 +249,7 @@ bool transformer::CreateLayers(){
 
     const int X = 0, Y = 1, Z = 2;
     if( CursorNodes > pointsInLayer() ){
-        cout << "To few points in layer: " << CursorNodes << ". We planed: " << pointsInLayer() << endl;
+        cout << "Too much points in layer: " << CursorNodes << ". We planed: " << pointsInLayer() << endl;
         return false;
     }            
     if( (CursorNodes-1)*countOfLayers()*QuartNumber > n ) {
@@ -252,8 +257,8 @@ bool transformer::CreateLayers(){
             << ". We planed: " << n << endl;
         return false;
     }
-    if( CursorQuad > elements*3 ) {
-        cout << "To few elements in layer: " << CursorQuad << ". We planned: " << elements * 3 << endl;
+    if( CursorQuad > countOfElements() ) {
+        cout << "Too much elements in layer: " << CursorQuad << ". We planned: " << elements * 3 << endl;
         return false;
     }
     
@@ -372,6 +377,7 @@ void transformer::fullReflect(int quart){
 	default:{return; }
 	}
 
+
 	for (int i = 0; i < NoReflectNodes; i++){
 		//CursorNodes = NoReflectNodes + i;
 		koor[CursorNodes][0] = koor[i][0] * tx;
@@ -412,7 +418,6 @@ void transformer::turn(){
 		fullReflect(3);
 	if (angle >= 360)
 		fullReflect(4);
-
 
 	/*
 	int tx, ty;

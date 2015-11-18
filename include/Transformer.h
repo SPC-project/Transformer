@@ -28,7 +28,8 @@ private:
 	bool testOtherNode(int fo, int one, int sec);
     int  pointsInLayer();
     int  countOfLayers();
-    int  countOfElemLayers();
+    int  countOfElemLayers(); // количество слоев с призмами
+	int  countOfElements(); // прогнозируемое количество призматических элементов в слое
 
 
 	int nodes;      // Начальное количество узлов

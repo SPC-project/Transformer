@@ -177,7 +177,6 @@ void Interface::showAbout(){
 		, QMessageBox::Cancel);
 }
 
-
 void Interface::transformate(){
 
 	if (Input->compare("") != 0){
