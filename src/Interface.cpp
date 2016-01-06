@@ -10,9 +10,12 @@ Interface::Interface(){
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
     // Инициализация интерфейса
-	openAction = new QAction(trUtf8("Открыть"), this);
-	saveAction = new QAction(trUtf8("Сохранить"), this);
-	exitAction = new QAction(trUtf8("Выход"), this);
+	QShortcut* openFile = new QShortcut(QKeySequence("Ctrl+O"), this);
+	QShortcut* saveFile = new QShortcut(QKeySequence("Ctrl+S"), this);
+	QShortcut* quitProgram = new QShortcut(QKeySequence("Ctrl+Q"), this);
+	openAction = new QAction(trUtf8("Открыть (ctrl+o)"), this);
+	saveAction = new QAction(trUtf8("Сохранить как (ctrl+s)"), this);
+	exitAction = new QAction(trUtf8("Выход (ctrl+q)"), this);
 	autorAction = new QAction(trUtf8("Об авторе"), this);
 	aboutAction = new QAction(trUtf8("О программе"), this);
     fileMenu = menuBar()->addMenu(trUtf8("Файл"));
@@ -90,6 +93,13 @@ Interface::Interface(){
 
 
 	bool res;
+	res = connect(openFile, SIGNAL(activated()), this, SLOT(open()));
+	Q_ASSERT(res);
+	res = connect(saveFile, SIGNAL(activated()), this, SLOT(save()));
+	Q_ASSERT(res);
+	res = connect(quitProgram, SIGNAL(activated()), qApp, SLOT(quit()));
+	Q_ASSERT(res);
+
 	res = connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 	Q_ASSERT(res);
 	res = connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
