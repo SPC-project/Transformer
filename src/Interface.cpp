@@ -1,6 +1,7 @@
 ﻿#include <Interface.h>
 #include <Transformer.h>
 #include <QTextCodec>
+#include <QShortcut>
 #include <string>
 
 
@@ -24,22 +25,24 @@ Interface::Interface(){
 	helpMenu->addAction(aboutAction);
 	helpMenu->addAction(autorAction);
 
+	static const int y = 30;
+
 	// Левая колонка
     chboxes[0] = new QCheckBox(trUtf8("Сортировать\n координаты"), this);
-	chboxes[0]->setGeometry(10, 10, 130, 40);
+	chboxes[0]->setGeometry(10, y, 130, 40);
     rbut[0] = new QRadioButton("X", this);
-	rbut[0]->move(30, 45);
+	rbut[0]->move(30, y+35);
 	rbut[0]->hide();
 	rbut[1] = new QRadioButton("Y", this);
-	rbut[1]->move(30, 60);
+	rbut[1]->move(30, y+50);
 	rbut[1]->hide();
 	rbut[2] = new QRadioButton("Z", this);
-	rbut[2]->move(30, 75);
+	rbut[2]->move(30, y+65);
 	rbut[2]->hide();
 	chboxes[4] = new QCheckBox(trUtf8("Отразить"), this);
-	chboxes[4]->setGeometry(10, 105, 100, 20);
+	chboxes[4]->setGeometry(10, y+95, 100, 20);
     combox = new QComboBox(this);
-	combox->move(10, 130);
+	combox->move(10, y+120);
 	combox->hide();
 	combox->addItem(trUtf8("180°"), QVariant(QVariant::String));
 	combox->addItem(trUtf8("270°"), QVariant(QVariant::String));
@@ -47,29 +50,29 @@ Interface::Interface(){
 
     // Правая колонка
     LayerN = new QLabel(trUtf8("Количество слоев:"), this);
-    LayerN->setGeometry(150, 10, 140, 25);
+    LayerN->setGeometry(150, y, 140, 25);
     spin = new QSpinBox(this);
 	spin->setMinimum(1);
-	spin->setGeometry(160, 30, 40, 25);
+	spin->setGeometry(160, y+20, 40, 25);
     spin->setToolTip(trUtf8("в фигуре"));
     airCapLength = new QSpinBox(this);
     airCapLength->setMinimum(0);
-    airCapLength->setGeometry(220, 30, 40, 25);
-    airCapLength->setToolTip(trUtf8("под 'воздушные шапки'"));
+    airCapLength->setGeometry(220, y+20, 40, 25);
+    airCapLength->setToolTip(trUtf8("под 'воздушные шапки' (с одной стороны)"));
 
 	LayerW = new QLabel(trUtf8("Толщина слоя:"), this);
-	LayerW->move(150, 50);
+	LayerW->move(150, y + 40);
 	dspin = new QDoubleSpinBox(this);
 	dspin->setMinimum(0.01);
 	dspin->setValue(1);
-	dspin->setGeometry(175, 75, 60, 25);
+	dspin->setGeometry(175, y + 65, 60, 25);
 
 	chboxes[1] = new QCheckBox(trUtf8("Отцентровать по X"), this);
-	chboxes[1]->setGeometry(150, 105, 160, 20);
+	chboxes[1]->setGeometry(150, y + 95, 160, 20);
 	chboxes[2] = new QCheckBox(trUtf8("Отцентровать по Y"), this);
-	chboxes[2]->setGeometry(150, 125, 160, 20);
+	chboxes[2]->setGeometry(150, y + 115, 160, 20);
 	chboxes[3] = new QCheckBox(trUtf8("Отцентровать по Z"), this);
-	chboxes[3]->setGeometry(150, 145, 160, 20);
+	chboxes[3]->setGeometry(150, y + 135, 160, 20);
 
     // Нижняя часть
 	State = new QLabel(this);
