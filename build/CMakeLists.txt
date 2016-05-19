@@ -42,8 +42,6 @@ file(GLOB code_h
 
 include_directories(${headers} ${CMAKE_CURRENT_BINARY_DIR})
 
-#find_package( Qt4 REQUIRED )
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

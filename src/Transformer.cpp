@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -32,13 +33,13 @@ int transformer::countOfLayers(){
     return LayerNumber+1 + CapLayerNum*2;
 }
 
+int transformer::countOfElemLayers(){
+    return countOfLayers() - 1;
+}
+
 // При разбиение один треугольник "распадается" на 3 призмы
 int transformer::countOfElements(){
 	return (elements*3) * QuartNumber;
-}
-
-int transformer::countOfElemLayers(){
-    return countOfLayers() - 1;
 }
 
 void transformer::CreateSpace(){
@@ -77,13 +78,15 @@ void transformer::CreateSpace(){
     }
 }
 
-bool transformer::LoadFile(const char* name){
+int transformer::LoadFile(const char* name){
 	ifstream input(name);
 	char a = 's';
+	string buf;
 
 	while (a != '=') //считываем, пока не доходим до знака =
 		input >> a;
 	input >> nodes;//после знака - количество узлов
+	cout << nodes << endl;
 
 	input >> a;//переводим курсор
 
@@ -95,18 +98,32 @@ bool transformer::LoadFile(const char* name){
 	while (a != ']')//далее находим закрывающуюся скобку, после которой - матрица элементов
 		input >> a;
 
-	for (int i = 0; i < elements; i++)//считываем матрицу элементов
-		for (int j = 0; j < 3; j++)
-			input >> inds[i][j];
+	try{
+		for (int i = 0; i < elements; i++)//считываем матрицу элементов
+			for (int j = 0; j < 3; j++) {
+				input >> buf;
+				inds[i][j] = stoi(buf);
+			}
+	} catch(const std::invalid_argument& err) {
+		return 1;
+	}
+
 
 	input >> a;//снова переводим курсор
 
-	while (a != ']')//ищем следующую закрывающуюся скобку
+	while (a != ']') { //ищем следующую закрывающуюся скобку
 		input >> a;
+	}
 
-	for (int i = 0; i < nodes; i++)//считываем матрицу координат
-		for (int j = 0; j < 2; j++)
-			input >> koor[i][j];
+	try{
+		for (int i = 0; i < nodes; i++)//считываем матрицу координат
+			for (int j = 0; j < 2; j++) {
+				input >> buf;
+				koor[i][j] = stod(buf);
+			}
+	} catch(const std::invalid_argument& err) {
+		return 2;
+	}
 
 	CursorNodes = nodes;
 
@@ -121,8 +138,14 @@ bool transformer::LoadFile(const char* name){
 	while (a != ']')// Готовимся считать [material]
 		input >> a;
 
-    for(int i=0; i < nodes; i++)
-        input >> materials[i];
+	try{
+		for(int i=0; i < nodes; i++) {
+			input >> buf;
+			materials[i] = stoi(buf);
+		}
+	} catch(const std::invalid_argument& err) {
+		return 3;
+	}
 
 	input.close();
 	return 0;
@@ -174,8 +197,9 @@ int transformer::GetEdgeMid_inds(int start_inds, int fin_inds){
 	// Вычисляем среднюю точку и обновляем данные
 	koor[CursorNodes][0] = (koor[fin_inds][0] - koor[start_inds][0]) / 2 + koor[start_inds][0];//середина по Х
 	koor[CursorNodes][1] = (koor[fin_inds][1] - koor[start_inds][1]) / 2 + koor[start_inds][1];//середина по У
-    if( materials[start_inds] == 0 || materials[fin_inds] == 0 ) // Отрезок с "воздушной" точкой - "воздушный" - как и середина
+    if( materials[start_inds] == 0 || materials[fin_inds] == 0 ) { // Отрезок с "воздушной" точкой - "воздушный" - как и середина
         materials[CursorNodes] = 0;
+	}
 	edge_inds[CursorMid][0] = start_inds;//далее заносим среднюю точку в массив просчитанных сторон
 	edge_inds[CursorMid][1] = fin_inds;
 	edge_inds[CursorMid][2] = CursorNodes;//записываем номер узла
@@ -190,8 +214,9 @@ int transformer::GetCentralDot_inds(int a, int b, int c){
 	koor[CursorNodes][0] = (koor[a][0] + koor[b][0] + koor[c][0]) / 3.0;//создаем новый узел и передаем ему координаты середины треугольника
 	koor[CursorNodes][1] = (koor[a][1] + koor[b][1] + koor[c][1]) / 3.0;
      // Если треугольник содержит "воздушную" точку - то средняя точка также будет "воздушной"
-    if( materials[a] == 0 || materials[b] == 0 || materials[c] == 0 )
+    if( materials[a] == 0 || materials[b] == 0 || materials[c] == 0 ){
         materials[CursorNodes] = 0;
+	}
 	CursorNodes++;//перемещаем курсор
 	return CursorNodes;
 }
@@ -418,122 +443,6 @@ void transformer::turn(){
 		fullReflect(3);
 	if (angle >= 360)
 		fullReflect(4);
-
-	/*
-	int tx, ty;
-	int	tcurs = 0;
-	int res[4], sum;
-    if(angle > 90 && angle < 180){
-	tx = -1;
-	ty = 1;
-	angle -= 90;
-	}
-	else if(angle > 180 && angle < 270){
-	tx = -1;
-	ty = -1;
-	angle -= 180;
-	}
-	else if(angle >270 && angle < 360){
-	tx = 1;
-	ty = -1;
-	angle -= 270;
-	}
-	else
-	return;*/
-
-	/*  bool is = 0;
-	int move = 0;
-	for(int i = 0; i < NoReflectQuad; i++){
-	sum = 0;
-	for(int k = 0; k < 4; k++){
-	// cout << quad[i][k] << " ";
-	res[k] = testKoor(quad[i][k]-1);
-	sum+=res[k];
-	}
-	// cout << " \ " << sum << endl;
-	if(sum < 3){
-	for(int k = 0; k < 4; k++){
-
-	move = 0;
-	is = 0;
-	if(res[k] == 1)
-	if(k == 3 && res[0] == 0)
-	move = quad[i][0];
-
-	else if(k == 0 && res[3] == 0)
-	move = quad[i][3];
-
-	else if(res[k+1] == 0)
-	move = quad[i][k+1];
-
-	else if(res[k-1] == 0)
-	move = quad[i][k-1];
-
-
-	for(int j = 0; j < tcurs; j++)
-	if(tnodes[j][0] == quad[i][k]-1 && (move == 0 || move != 0 && tnodes[j][1] != -1)){
-	is = 1;
-	if(move)
-	if(testOtherNode(tnodes[j][0], tnodes[j][1], move-1))
-	tnodes[j][1] = move - 1;
-
-	}
-	else if(tnodes[j][0] == quad[i][k]-1 && move == 0 && tnodes[j][1] == -1){
-	tnodes[j][1] = move -1;
-	is = 1;
-	}
-
-	if(is == 0 && quad[i][k] != 1){
-	tnodes[tcurs][0] = quad[i][k] - 1;
-	if(move != 0)
-	tnodes[tcurs][1] = move-1;
-	// cout << "    " << tnodes[tcurs][0] << "  >> " << tnodes[tcurs][1] << "|" << tcurs << endl;
-	tcurs++;}
-	}
-	quad[i][5] = 1;
-	}
-	else if(sum == 3){
-	for(int k = 0; k < 4; k++)
-	if(res[k] == 0 && quad[i][k] != 1){
-	tnodes[tcurs][0] = (quad[i][k] - 1);
-	if(k != 0)
-	tnodes[tcurs][1] = quad[i][k-1]-1;
-	else
-	tnodes[tcurs][1] = quad[i][k+1]-1;
-	tcurs++;}
-
-	}
-	}
-
-	for(int i = 0; i < tcurs; i++){
-	is = 0;
-	if(tnodes[i][1] == -1){
-	koor[CursorNodes][0] = koor[tnodes[i][0]][0] * tx;
-	koor[CursorNodes][1] = koor[tnodes[i][0]][1] * ty;}
-	else{
-	turnNode(tnodes[i][0], tnodes[i][1], CursorNodes);
-	koor[CursorNodes][0] *= tx;
-	koor[CursorNodes][1] *= ty;
-	}
-
-	CursorNodes++;
-	}
-
-	for(int i = 0; i < NoReflectQuad; i++){
-	if(quad[i][5] == 1){
-	for(int k = 0; k < 4; k++){
-	if(quad[i][k] == 1)
-	quad[CursorQuad][k] = 1;
-	for(int j = 0; j < tcurs; j++)
-	if(quad[i][k] == tnodes[j][0]+1)
-	quad[CursorQuad][k] = CursorNodes - tcurs + j + 1;}
-	CursorQuad++;}
-
-	}
-
-	for(int i = 0; i < tcurs; i++)
-	cout << tnodes[i][0] << " " << tnodes[i][1] << endl;
-	cout << " 0" << tcurs;*/
 }
 
 bool transformer::testKoor(int a){

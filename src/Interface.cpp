@@ -3,6 +3,7 @@
 #include <QTextCodec>
 #include <QShortcut>
 #include <string>
+#include <stdexcept>
 
 
 Interface::Interface(){
@@ -162,7 +163,7 @@ void Interface::save()
 			trUtf8("*.transf"));
 
 		if (fname != ""){
-			Output = new QString(fname);
+			Output = new QString(fname + ".transf");
 
 
 			QByteArray oqb = Output->toUtf8();
@@ -206,7 +207,25 @@ void Interface::transformate(){
 
 
 		State->setText(trUtf8("Чтение из файла..."));
-		Transform->LoadFile(in);
+		
+		QString errDescript;
+		switch(Transform->LoadFile(in)){
+		case 0:
+			break;
+		case 1:
+			errDescript = trUtf8("Файл нарушен в секции [inds]");
+			break;
+		case 2:
+			errDescript = trUtf8("Файл нарушен в секции [koor]");
+			break;
+		case 3:
+			errDescript = trUtf8("Файл нарушен в секции [materials]");
+			break;
+		}
+		if( !errDescript.isNull() ) {
+			QMessageBox::critical(this, trUtf8("Ошибка чтения"), errDescript);
+			return;
+		}
 
 		State->setText(trUtf8("Разбиение..."));
 		Transform->Partition();

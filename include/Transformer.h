@@ -5,7 +5,7 @@ class transformer{
 public:
 	transformer(int LNum, float LWidth, double ang, int CNum);
 
-	bool LoadFile(const char *name);//получение данных из файла .pmd
+	int LoadFile(const char *name);//получение данных из файла .pmd
 	bool Partition();//разбиение треугольника на четырехугольники
 	bool CreateLayers();//сделать в фигуре слои
 	bool SaveFile(const char* name);//сохраняем результаты в файл
