@@ -1,7 +1,7 @@
 language: cpp
 compiler: g++
 sudo: required
-dist: trusty
+dist: wily
 script: 
   - cd ./build
   - cmake .
