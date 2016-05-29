@@ -3,9 +3,9 @@ compiler: g++
 sudo: required
 dist: trusty
 before_install:
-  - add-apt-repository ppa:ubuntu-toolchain-r/test
-  - apt-get update
-  - apt-get install g++-5
+  - add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - apt-get update -q
+  - apt-get install g++-5 -y
 script: 
   - cd ./build
   - cmake .
