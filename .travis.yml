@@ -1,8 +1,7 @@
 language: cpp
 compiler: g++
-before_install:
-  - export CXX="g++-4.7";
-  - export LINKXX="g++-4.7";
+sudo: required
+dist: trusty
 script: 
   - cd ./build
   - cmake .
