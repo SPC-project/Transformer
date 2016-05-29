@@ -126,7 +126,7 @@ void Interface::open()
 {
 	qDebug() << Input;
 	QString fname = QFileDialog::getOpenFileName(this, trUtf8("Открыть"), "",
-		trUtf8("*.pmd"));
+		trUtf8("Файл разбиения(*.pmd)"));
 	if (fname != "") {
 		Input = new QString(fname);
         State->setText(trUtf8("Выбран файл"));
@@ -135,13 +135,11 @@ void Interface::open()
 }
 
 void Interface::hideRb(){
-
 	if (!chboxes[0]->isChecked()){
 		rbut[0]->hide();
 		rbut[1]->hide();
 		rbut[2]->hide();
-	}
-	else{
+	} else {
 		rbut[0]->show();
 		rbut[1]->show();
 		rbut[2]->show();
@@ -210,16 +208,20 @@ void Interface::transformate(){
 		
 		QString errDescript;
 		switch(Transform->LoadFile(in)){
-		case 0:
+		case 0: 
+			// Все нормально
 			break;
 		case 1:
-			errDescript = trUtf8("Файл нарушен в секции [inds]");
+			errDescript = trUtf8("Файл нарушен в секции [inds]: узлов меньше, чем было объявлено");
 			break;
 		case 2:
-			errDescript = trUtf8("Файл нарушен в секции [koor]");
+			errDescript = trUtf8("Файл нарушен в секции [koor]: элементов меньше, чем было объявлено");
 			break;
 		case 3:
-			errDescript = trUtf8("Файл нарушен в секции [materials]");
+			errDescript = trUtf8("Файл нарушен в секции [materials]: узлов меньше, чем было объявлено");
+			break;
+		case 4:
+			errDescript = trUtf8("Файл нарушен в секции [inds]: индексация узлов начинается не с 1");
 			break;
 		}
 		if( !errDescript.isNull() ) {
@@ -248,7 +250,7 @@ void Interface::transformate(){
 
 		State->setText(trUtf8("Создание слоев..."));
 		if( !Transform->CreateLayers() ){
-            State->setText(trUtf8("Проблемы с созданием слоев"));
+			QMessageBox::critical(this, trUtf8("Ошибка разбиения"), trUtf8("Разбиение породило больше узлов, чем было предсказано"));
             return;
         }
 

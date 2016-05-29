@@ -86,7 +86,6 @@ int transformer::LoadFile(const char* name){
 	while (a != '=') //считываем, пока не доходим до знака =
 		input >> a;
 	input >> nodes;//после знака - количество узлов
-	cout << nodes << endl;
 
 	input >> a;//переводим курсор
 
@@ -103,6 +102,8 @@ int transformer::LoadFile(const char* name){
 			for (int j = 0; j < 3; j++) {
 				input >> buf;
 				inds[i][j] = stoi(buf);
+				if( inds[i][j] < 1 )
+					return 4;
 			}
 	} catch(const std::invalid_argument& err) {
 		return 1;
